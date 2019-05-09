@@ -1,17 +1,22 @@
 #include <memory>
+#include <vector>
 
 #include "Network.hpp"
 #include "Supplier.hpp"
 
-Network::Network(int num_suppliers, int num_storages, int num_connections)
+Network::Network(int num_suppliers, int num_storages)
 {
     this->num_suppliers   = num_suppliers;
     this->num_storages    = num_storages;
-    this->num_connections = num_connections;
+    this->num_connections = num_suppliers + num_storages + 1; // 1 is the final destination
+
+    this->connections = new std::vector<std::shared_ptr<Connection>>[this->num_connections];
 }
 
-Network::~Network() {
-
+Network::~Network()
+{
+    this->connections->clear();
+    delete this->connections; //if error remove
 }
 
 int Network::countSuppliers()
@@ -63,4 +68,21 @@ int Network::nextStorageId()
 std::vector<std::shared_ptr<Storage>> Network::getStorages()
 {
     return this->storages;
+}
+
+void Network::addConnection(int origin_id, int destiny_id, int weight)
+{
+    int u = origin_id - 1; // index is id - 1 (should start at 0)
+    int v = destiny_id - 1; // index is id - 1 (should start at 0)
+
+    std::shared_ptr<Connection> connection1 = std::make_shared<Connection>(destiny_id, weight);
+    std::shared_ptr<Connection> connection2 = std::make_shared<Connection>(origin_id, weight);
+
+    this->connections[u].push_back(connection1);
+    this->connections[v].push_back(connection2);
+}
+
+std::vector<std::shared_ptr<Connection>> *Network::getConnections()
+{
+    return this->connections;
 }

@@ -5,9 +5,7 @@ Storage::Storage(int id, int amount) {
     this->amount = amount;
 }
 
-Storage::~Storage() {
-
-}
+Storage::~Storage() { }
 
 int Storage::getId()
 {

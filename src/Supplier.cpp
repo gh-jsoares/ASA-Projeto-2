@@ -5,9 +5,7 @@ Supplier::Supplier(int id, int amount) {
     this->amount = amount;
 }
 
-Supplier::~Supplier() {
-
-}
+Supplier::~Supplier() { }
 
 int Supplier::getId()
 {

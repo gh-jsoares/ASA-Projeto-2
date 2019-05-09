@@ -42,13 +42,21 @@ Network Parser::factory() {
     int num_suppliers, num_storages, num_connections;
 
     line = read_three_num_line(&num_suppliers, &num_storages, &num_connections);
-    Network network(num_suppliers, num_storages, num_connections);
+    Network network(num_suppliers, num_storages);
 
     line = read_line();
     cycle_line(line, &network, TYPE_SUPPLIER);
 
     line = read_line();
     cycle_line(line, &network, TYPE_STORAGE);
+
+    int i = 0;
+    int origin, destiny, weight;
+    while(i < num_connections) {
+        line = read_three_num_line(&origin, &destiny, &weight);
+        network.addConnection(origin, destiny, weight);
+        i++;
+    }
     
     return network;
 }
