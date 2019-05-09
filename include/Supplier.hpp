@@ -8,4 +8,7 @@ private:
 public:
     Supplier(int id, int amount);
     ~Supplier();
+
+    int getId();
+    int getAmount();
 };
