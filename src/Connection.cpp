@@ -1,19 +1,28 @@
 #include "Connection.hpp"
 
-Connection::Connection(int vertex_id, int weight)
+Connection::Connection(int vertex_id, int capacity)
 {
     this->vertex_id = vertex_id;
-    this->weight = weight;
+    this->capacity = capacity;
+    this->flow = 0;
 }
-
-Connection::~Connection() { }
 
 int Connection::getVertexId()
 {
     return this->vertex_id;
 }
 
-int Connection::getWeight()
+int Connection::getCapacity()
 {
-    return this->weight;
+    return this->capacity;
+}
+
+void Connection::setReverseConnection(std::shared_ptr<Connection> reverse)
+{
+    this->reverse = reverse;
+}
+
+std::weak_ptr<Connection> Connection::getReverseConnection()
+{
+    return this->reverse;
 }

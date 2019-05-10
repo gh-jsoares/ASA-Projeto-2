@@ -1,14 +1,9 @@
 #pragma once
 
-class Storage
+#include "Node.hpp"
+
+class Storage : public Node
 {
-private:
-    int id;
-    int amount;
 public:
     Storage(int id, int amount);
-    ~Storage();
-
-    int getId();
-    int getAmount();
 };

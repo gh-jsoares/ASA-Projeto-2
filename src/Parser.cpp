@@ -51,10 +51,10 @@ Network Parser::factory() {
     cycle_line(line, &network, TYPE_STORAGE);
 
     int i = 0;
-    int origin, destiny, weight;
+    int origin, destiny, capacity;
     while(i < num_connections) {
-        line = read_three_num_line(&origin, &destiny, &weight);
-        network.addConnection(origin, destiny, weight);
+        line = read_three_num_line(&origin, &destiny, &capacity);
+        network.addConnection(origin, destiny, capacity);
         i++;
     }
     

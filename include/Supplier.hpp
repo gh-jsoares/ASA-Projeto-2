@@ -1,14 +1,9 @@
 #pragma once
 
-class Supplier
+#include "Node.hpp"
+
+class Supplier : public Node
 {
-private:
-    int id;
-    int amount;
 public:
     Supplier(int id, int amount);
-    ~Supplier();
-
-    int getId();
-    int getAmount();
 };

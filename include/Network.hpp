@@ -35,6 +35,6 @@ public:
     int nextStorageId();
     std::vector<std::shared_ptr<Storage>> getStorages();
 
-    void addConnection(int origin_id, int destiny_id, int weight);
+    void addConnection(int origin_id, int destiny_id, int capacity);
     std::vector<std::shared_ptr<Connection>> *getConnections();
 };

@@ -32,7 +32,7 @@ void Writer::write(Network *network)
 
         for (auto it = connections[i].begin(); it != connections[i].end(); ++it) {
             Connection con = *(*it).get();
-            std::cout << con.getVertexId() << "(W: " << con.getWeight() << ")" << " - ";
+            std::cout << con.getVertexId() << "(W: " << con.getCapacity() << ")" << " - ";
         }
 
         std::cout << "\\" << std::endl;
