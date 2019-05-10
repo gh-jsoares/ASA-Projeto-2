@@ -37,4 +37,6 @@ public:
 
     void addConnection(int origin_id, int destiny_id, int capacity);
     std::vector<std::shared_ptr<Connection>> *getConnections();
+
+    bool bfs(int source, int target);
 };

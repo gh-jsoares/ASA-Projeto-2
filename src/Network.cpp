@@ -1,6 +1,7 @@
 #include <memory>
 #include <iostream>
 #include <vector>
+#include <list>
 
 #include "Network.hpp"
 #include "Supplier.hpp"
@@ -91,4 +92,22 @@ void Network::addConnection(int origin_id, int destiny_id, int capacity)
 std::vector<std::shared_ptr<Connection>> *Network::getConnections()
 {
     return this->connections;
+}
+
+bool Network::bfs(int source_id, int target_id)
+{
+    int s = source_id - 1; // index is id - 1 (should start at 0)
+
+    std::list<int> queue;
+    queue.push_back(s);
+    while(!queue.empty()) {
+        int u = queue.front();
+        queue.pop_front();
+
+        auto connections = getConnections()[u];
+        for (auto it = connections.begin(); it < connections.end(); ++it) {
+            Connection *connection = (*it).get();
+        }
+        
+    }
 }

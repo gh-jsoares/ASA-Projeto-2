@@ -2,7 +2,7 @@
 
 #include "Node.hpp"
 
-Node::Node(int id, int amount): id(id), amount(amount) { }
+Node::Node(int id, int amount): id(id), amount(amount), level(-1) { }
 
 Node::~Node() { }
 
