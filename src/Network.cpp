@@ -1,4 +1,5 @@
 #include <memory>
+#include <iostream>
 #include <vector>
 
 #include "Network.hpp"
@@ -15,8 +16,11 @@ Network::Network(int num_suppliers, int num_storages)
 
 Network::~Network()
 {
-    this->connections->clear();
-    delete this->connections; //if error remove
+    for (int i = 0; i < this->num_connections; i++) {
+        this->connections[i].clear();
+    }
+
+    delete [] this->connections;
 }
 
 int Network::countSuppliers()

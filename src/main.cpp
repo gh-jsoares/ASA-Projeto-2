@@ -9,7 +9,7 @@ int main()
 
     Network network = parser.factory();
 
-    writer.write(network);
+    writer.write(&network);
 
     return 0;
 }
