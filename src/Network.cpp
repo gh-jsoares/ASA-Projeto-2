@@ -5,6 +5,8 @@ Edge::Edge(int flow, int capacity, std::shared_ptr<Node> node, std::shared_ptr<N
 
 Node::Node(int id) : id(id) { }
 
+Path::Path(int id_1, int id_2) : id_1(id_1), id_2(id_2) { }
+
 Network::Network(int num_nodes, int f) : m_num_nodes(num_nodes), m_f(f)
 {
     m_adj = new std::vector<std::shared_ptr<Edge>>[num_nodes];
@@ -239,7 +241,7 @@ void Network::DFS()
     DFSUtil(1, visited);
 
     std::vector<int> storages;
-    std::vector<std::string> paths;
+    std::vector<std::shared_ptr<Path>> paths;
 
     for(int i = 1; i < m_num_nodes; i++) {
         if(!visited[i])
@@ -251,24 +253,27 @@ void Network::DFS()
                     int id_2 = ABS(getNodeId(other_index));
                     if(id_1 == id_2) // storage
                         storages.push_back(id_1);
-                    else // path
-                        paths.push_back(std::string(std::to_string(id_1) + " " + std::to_string(id_2)));
-
-                    // printf("Corte: %d %d", getNodeId(i), getNodeId(other_index));
+                    else { // path
+                        auto path = std::make_shared<Path>(id_1, id_2);
+                        paths.push_back(path);
+                    }
                 }
             }
     }
     
     std::sort(storages.begin(), storages.end());
-    std::sort(paths.begin(), paths.end());
-
     for(auto it = storages.begin(); it != storages.end(); ++it) {
-        printf("%d ", *it);
+        printf(" %d", *it);
     }
-
     printf("\n");
+
+    std::sort(paths.begin(), paths.end(), [](const std::shared_ptr<Path>& p1, const std::shared_ptr<Path>& p2)
+    {
+        return std::tie(p1->id_1, p1->id_2) < std::tie(p2->id_1, p2->id_2);
+    });
+
     for(auto it2 = paths.begin(); it2 != paths.end(); ++it2) {
-        printf("%s\n", (*it2).c_str());
+        printf("%d %d\n", (*it2)->id_1, (*it2)->id_2);
     }
 
     delete [] visited;

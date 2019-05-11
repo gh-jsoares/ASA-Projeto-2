@@ -9,7 +9,7 @@ Writer::Writer()
 
 void Writer::write(Network *network)
 {
-    std::cout << network->getMaxFlow() << "\n";
+    printf("%d\n", network->getMaxFlow());
 
     network->DFS();
 

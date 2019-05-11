@@ -7,6 +7,13 @@
 
 #include "utils.hpp"
 
+struct Path
+{
+    int id_1;
+    int id_2;
+    Path(int id_1, int id_2);
+};
+
 struct Node
 {
     int id;
