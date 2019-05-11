@@ -5,7 +5,15 @@
 #include <bits/stdc++.h>
 
 #include "utils.hpp"
-#include "Node.hpp"
+
+struct Node
+{
+    int id;
+    int excess_flow = 0;
+    int height = 0;
+
+    Node(int id);
+};
 
 struct Edge
 {
@@ -23,7 +31,7 @@ private:
     int m_f; // num suppliers
 
     std::vector<std::shared_ptr<Edge>> *m_adj;
-    std::vector<std::shared_ptr<Node>> m_nodes; // available nodes
+    std::shared_ptr<Node> *m_nodes; // available nodes
 
     void addEdge(int origin_id, int destination_id, int flow, int capacity);
 
