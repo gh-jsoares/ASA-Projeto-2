@@ -262,8 +262,10 @@ void Network::DFS()
     }
     
     std::sort(storages.begin(), storages.end());
-    for(auto it = storages.begin(); it != storages.end(); ++it) {
-        printf(" %d", *it);
+    unsigned int i = 0;
+    printf("%d", storages[i]);
+    for(i = 1; i < storages.size(); i++) {
+        printf(" %d", storages[i]);
     }
     printf("\n");
 
