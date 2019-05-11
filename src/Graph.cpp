@@ -162,13 +162,12 @@ std::shared_ptr<Node> Graph::getNode(int id)
 
 int Graph::getNodeIndex(std::shared_ptr<Node> node)
 {
-    int index = node->getId();
+    int index = ABS(node->getId());
 
     if(isStorage(index)) {
-        if(index < 0)
-            index = -index + 1;
-        
         index += index - (m_num_suppliers + 2);
+        if(node->getId() < 0)
+            index++;
     }
 
     return index;
@@ -200,6 +199,8 @@ void Graph::DFS()
         int u = getNodeIndex(connection->getOrigin());
         int v = getNodeIndex(connection->getDestination());
         bool full = connection->getFlow() == connection->getCapacity();
+
+        printf("u: %d | v: %d | size: %d", u, v, m_num_vertices);
 
         adj[u].push_back(std::make_shared<DFSNode>(v, full));
         adj[v].push_back(std::make_shared<DFSNode>(u, full));
