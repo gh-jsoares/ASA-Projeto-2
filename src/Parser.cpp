@@ -2,7 +2,6 @@
 #include <sstream>
 
 #include "Parser.hpp"
-#include "Network.hpp"
 
 std::string Parser::read_line() {
     std::string line;
@@ -19,8 +18,6 @@ std::string Parser::read_three_num_line(int *a, int *b, int *c)
 
 int Parser::cycle_line(std::string line, Network *network, int type, int num_nodes, int num_elements)
 {
-    auto graph = network->getGraph();
-    
     char *tmp = new char[line.length() + 1];
     strcpy(tmp, line.c_str());
 
@@ -29,9 +26,9 @@ int Parser::cycle_line(std::string line, Network *network, int type, int num_nod
         sscanf(tmp, "%d %[^\n]", &n, tmp);
         num_nodes++;
         if(type == TYPE_SUPPLIER)
-            graph->addEdge(0, num_nodes , n);
+            network->addEdge(0, num_nodes , n);
         else
-            graph->addEdge(num_nodes, -num_nodes , n);
+            network->addEdge(num_nodes, -num_nodes , n);
     }
 
     delete [] tmp;
@@ -44,7 +41,7 @@ Network Parser::factory() {
     int num_suppliers, num_storages, num_connections;
 
     line = read_three_num_line(&num_suppliers, &num_storages, &num_connections);
-    Network network(num_suppliers, num_storages);
+    Network network(num_suppliers + num_storages * 2 + 2, num_suppliers);;
 
     int num_nodes = 1;
 
@@ -54,16 +51,14 @@ Network Parser::factory() {
     line = read_line();
     num_nodes = cycle_line(line, &network, TYPE_STORAGE, num_nodes, num_storages);
 
-    auto graph = network.getGraph();
-    
     int origin_id, destination_id, capacity;
     for(int i = 0; i < num_connections; i++ ) {
         line = read_three_num_line(&origin_id, &destination_id, &capacity);
 
-        if(graph->isStorage(origin_id))
+        if(network.isStorage(origin_id))
             origin_id *= -1; // storages are paths between 2 nodes with symmetrical ids
 
-        graph->addEdge(origin_id, destination_id, capacity);
+        network.addEdge(origin_id, destination_id, capacity);
     }
     
     return network;

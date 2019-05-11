@@ -9,9 +9,9 @@ Writer::Writer()
 
 void Writer::write(Network *network)
 {
-    auto graph = network->getGraph();
-    std::cout << graph->getMaxFlow() << "\n";
+    std::cout << network->getMaxFlow() << "\n";
 
+    network->DFS();
 
     // graph->calculateIncreases();
 
