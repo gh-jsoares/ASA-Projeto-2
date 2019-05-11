@@ -69,7 +69,7 @@ Network Parser::factory() {
     for(int i = 0; i < num_connections; i++ ) {
         line = read_three_num_line(&origin_id, &destination_id, &capacity);
 
-        if(network.isStorage(origin_id))
+        if(graph->isStorage(origin_id))
             origin_id *= -1; // storages are paths between 2 nodes with symmetrical ids
 
         auto origin = graph->getNode(origin_id);

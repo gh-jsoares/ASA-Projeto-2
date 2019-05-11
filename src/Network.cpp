@@ -19,8 +19,3 @@ std::shared_ptr<Graph> Network::getGraph()
 {
     return m_graph;
 }
-
-bool Network::isStorage(int node_id)
-{
-    return node_id > m_num_suppliers + 1;
-}

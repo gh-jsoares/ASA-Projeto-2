@@ -25,7 +25,7 @@ private:
     void updateReverseEdgeFlow(std::shared_ptr<Connection> connection, int flow);
     std::shared_ptr<Node> overFlowNode();
 
-    bool calculateIncreasesRecursive(std::shared_ptr<Node> node, bool visited[]);
+    bool calculateIncreasesRecursive(std::shared_ptr<Node> node, bool *visited);
 public:
     Graph(int num_vertices, int num_suppliers);
 
@@ -37,6 +37,7 @@ public:
     std::shared_ptr<Node> getTail();
     std::shared_ptr<Node> getNode(int id);
     int getNodeIndex(std::shared_ptr<Node> node);
+    bool isStorage(int node_id);
 
     void calculateIncreases();
     std::vector<std::shared_ptr<Connection>> getIncreases();
