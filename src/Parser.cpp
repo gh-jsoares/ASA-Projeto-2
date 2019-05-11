@@ -27,17 +27,11 @@ int Parser::cycle_line(std::string line, Network *network, int type, int num_nod
     int n;
     for(int i = 0; i < num_elements; i++) {
         sscanf(tmp, "%d %[^\n]", &n, tmp);
-        if(type == TYPE_SUPPLIER) {
-            auto supplier = std::make_shared<Node>(++num_nodes);
-            graph->addNode(supplier);
-            graph->addConnection(graph->getSource(), supplier, n);
-        } else {
-            auto storage_start = std::make_shared<Node>(++num_nodes);
-            auto storage_end = std::make_shared<Node>(-num_nodes);
-            graph->addNode(storage_start);
-            graph->addNode(storage_end);
-            graph->addConnection(storage_start, storage_end, n);
-        }
+        num_nodes++;
+        if(type == TYPE_SUPPLIER)
+            graph->addEdge(0, num_nodes , n);
+        else
+            graph->addEdge(num_nodes, -num_nodes , n);
     }
 
     delete [] tmp;
@@ -62,9 +56,6 @@ Network Parser::factory() {
 
     auto graph = network.getGraph();
     
-    auto tail = std::make_shared<Node>(1);
-    graph->addNode(tail);
-
     int origin_id, destination_id, capacity;
     for(int i = 0; i < num_connections; i++ ) {
         line = read_three_num_line(&origin_id, &destination_id, &capacity);
@@ -72,10 +63,7 @@ Network Parser::factory() {
         if(graph->isStorage(origin_id))
             origin_id *= -1; // storages are paths between 2 nodes with symmetrical ids
 
-        auto origin = graph->getNode(origin_id);
-        auto destination = graph->getNode(destination_id);
-
-        graph->addConnection(origin, destination, capacity);
+        graph->addEdge(origin_id, destination_id, capacity);
     }
     
     return network;

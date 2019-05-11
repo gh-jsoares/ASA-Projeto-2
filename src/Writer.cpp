@@ -12,7 +12,6 @@ void Writer::write(Network *network)
     auto graph = network->getGraph();
     std::cout << graph->getMaxFlow() << "\n";
 
-    graph->DFS();
 
     // graph->calculateIncreases();
 
