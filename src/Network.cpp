@@ -3,15 +3,12 @@
 Edge::Edge(int flow, int capacity, std::shared_ptr<Node> node, std::shared_ptr<Node> origin)
     : flow(flow), capacity(capacity), node(node), origin(origin) { }
 
-Edge::Edge(int flow, int capacity, std::shared_ptr<Node> node, std::shared_ptr<Node> origin, std::shared_ptr<Edge> relative)
-    : flow(flow), capacity(capacity), node(node), origin(origin), relative(relative) { }
-
 Node::Node(int id) : id(id) { }
 
 Network::Network(int num_nodes, int f) : m_num_nodes(num_nodes), m_f(f)
 {
     m_adj = new std::vector<std::shared_ptr<Edge>>[num_nodes];
-    m_adj_bkp = new std::vector<std::shared_ptr<Edge>>[num_nodes];
+    m_adj_relative = new std::vector<std::shared_ptr<Edge>>[num_nodes];
 
     m_nodes = new std::shared_ptr<Node>[num_nodes];
     for (int i = 0; i < m_num_nodes; i++) {
@@ -23,15 +20,20 @@ Network::Network(int num_nodes, int f) : m_num_nodes(num_nodes), m_f(f)
 
 Network::~Network() {
     delete [] m_adj;
+    delete [] m_adj_relative;
     delete [] m_nodes;
 }
 
 void Network::addEdge(int origin_id, int destination_id, int capacity)
 {
     int origin_index = getNodeIndex(origin_id);
-    auto edge = addEdge(origin_id, destination_id, 0, capacity);
+    auto destination_node = getNode(destination_id);
+    auto origin_node = getNode(origin_id);
 
-    m_adj_bkp[origin_index].push_back(edge);
+    auto edge = std::make_shared<Edge>(0, capacity, destination_node, origin_node);
+    m_adj[origin_index].push_back(edge);
+
+    m_adj_relative[origin_index].push_back(edge);
 }
 
 std::shared_ptr<Edge> Network::addEdge(int origin_id, int destination_id, int flow, int capacity)
@@ -41,19 +43,7 @@ std::shared_ptr<Edge> Network::addEdge(int origin_id, int destination_id, int fl
     auto origin_node = getNode(origin_id);
 
     auto edge = std::make_shared<Edge>(flow, capacity, destination_node, origin_node);
-    m_adj[origin_index].push_back(edge);
-
-    return edge;
-}
-
-std::shared_ptr<Edge> Network::addEdge(int origin_id, int destination_id, int flow, int capacity, std::shared_ptr<Edge> relative)
-{
-    int origin_index = getNodeIndex(origin_id);
-    auto destination_node = getNode(destination_id);
-    auto origin_node = getNode(origin_id);
-
-    auto edge = std::make_shared<Edge>(flow, capacity, destination_node, origin_node, relative);
-    m_adj[origin_index].push_back(edge);
+    m_adj_relative[origin_index].push_back(edge);
 
     return edge;
 }
@@ -122,20 +112,20 @@ void Network::preflow(std::shared_ptr<Node> origin)
 
     int origin_index = getNodeIndex(origin);
 
-    for(auto it = m_adj[origin_index].begin(); it != m_adj[origin_index].end(); ++it) {
+    for(auto it = m_adj_relative[origin_index].begin(); it != m_adj_relative[origin_index].end(); ++it) {
         auto edge = (*it);
         edge->flow = edge->capacity;
         edge->node->excess_flow = edge->capacity;
 
-        addEdge(edge->node->id, origin->id, -edge->flow, 0, edge);
+        addEdge(edge->node->id, origin->id, -edge->flow, 0);
     }
 }
 
-void Network::updateReverseEdgeFlow(int origin_id, int destination_id, int flow, std::shared_ptr<Edge> edge)
+void Network::updateReverseEdgeFlow(int origin_id, int destination_id, int flow)
 {
     int origin_index = getNodeIndex(destination_id);
 
-    for(auto it = m_adj[origin_index].begin(); it != m_adj[origin_index].end(); ++it) {
+    for(auto it = m_adj_relative[origin_index].begin(); it != m_adj_relative[origin_index].end(); ++it) {
         auto edge = (*it);
         if(edge->node->id == origin_id) {
             edge->flow -= flow;
@@ -143,7 +133,7 @@ void Network::updateReverseEdgeFlow(int origin_id, int destination_id, int flow,
         }
     }
 
-    addEdge(destination_id, origin_id, 0, flow, edge);
+    addEdge(destination_id, origin_id, 0, flow);
 }
 
 
@@ -151,7 +141,7 @@ bool Network::push(std::shared_ptr<Node> node)
 {
     int origin_index = getNodeIndex(node);
 
-    for(auto it = m_adj[origin_index].begin(); it != m_adj[origin_index].end(); ++it) {
+    for(auto it = m_adj_relative[origin_index].begin(); it != m_adj_relative[origin_index].end(); ++it) {
         auto edge = (*it);
         if(edge->flow == edge->capacity)
             continue;
@@ -164,7 +154,7 @@ bool Network::push(std::shared_ptr<Node> node)
 
             edge->flow += flow;
 
-            updateReverseEdgeFlow(node->id, destination_node->id, flow, edge);
+            updateReverseEdgeFlow(node->id, destination_node->id, flow);
 
             return true;
         }
@@ -179,7 +169,7 @@ void Network::relabel(std::shared_ptr<Node> node)
 
     int origin_index = getNodeIndex(node);
 
-    for(auto it = m_adj[origin_index].begin(); it != m_adj[origin_index].end(); ++it) {
+    for(auto it = m_adj_relative[origin_index].begin(); it != m_adj_relative[origin_index].end(); ++it) {
         auto edge = (*it);
         if(edge->flow == edge->capacity)
             continue;
@@ -207,7 +197,7 @@ void Network::debug()
     LOG("========EDGES========");
     LOG("origin | destination | capacity | flow");
     for (int i = 0; i < m_num_nodes; i++) {
-        for(auto it = m_adj[i].begin(); it != m_adj[i].end(); ++it) {
+        for(auto it = m_adj_relative[i].begin(); it != m_adj_relative[i].end(); ++it) {
             auto edge = (*it);
             int origin_id = getNodeId(i);
             int destination_id = edge->node->id;
@@ -248,30 +238,60 @@ void Network::DFS()
 
     DFSUtil(1, visited);
 
-    for(int i = 0; i < m_num_nodes; i++) {
+    std::vector<int> storages;
+    std::vector<std::string> paths;
+
+    for(int i = 1; i < m_num_nodes; i++) {
         if(!visited[i])
-            for(auto it = m_adj_bkp[i].begin(); it != m_adj_bkp[i].end(); ++it) {
+            for(auto it = m_adj_relative[i].begin(); it != m_adj_relative[i].end(); ++it) {
                 auto edge = (*it);
                 int other_index = getNodeIndex(edge->node);
-                if(visited[other_index])
-                    printf("Corte: %d %d", getNodeId(i), getNodeId(other_index));
+                if(visited[other_index]) {
+                    int id_1 = ABS(getNodeId(i));
+                    int id_2 = ABS(getNodeId(other_index));
+                    if(id_1 == id_2) // storage
+                        storages.push_back(id_1);
+                    else // path
+                        paths.push_back(std::string(std::to_string(id_1) + " " + std::to_string(id_2)));
+
+                    // printf("Corte: %d %d", getNodeId(i), getNodeId(other_index));
+                }
             }
+    }
+    
+    std::sort(storages.begin(), storages.end());
+    std::sort(paths.begin(), paths.end());
+
+    for(auto it = storages.begin(); it != storages.end(); ++it) {
+        printf("%d ", *it);
+    }
+
+    printf("\n");
+    for(auto it2 = paths.begin(); it2 != paths.end(); ++it2) {
+        printf("%s\n", (*it2).c_str());
     }
 
     delete [] visited;
+}
+
+std::shared_ptr<Edge> Network::getEdge(int origin_index, int destination_index)
+{
+    for(auto it = m_adj_relative[origin_index].begin(); it != m_adj_relative[origin_index].end(); ++it) {
+        auto edge = (*it);
+        int other_index = getNodeIndex(edge->node);
+        if(other_index == destination_index)
+            return edge;
+    }
+    return nullptr;
 }
 
 void Network::DFSUtil(int index, bool *visited)
 {
     visited[index] = true;
 
-    for(auto it = m_adj[index].begin(); it != m_adj[index].end(); ++it) {
-        auto edge = (*it);
-        int other_index = getNodeIndex(edge->node);
-
-        if(!edge->relative.expired())
-            edge = edge->relative.lock();
-        if(!visited[other_index] && edge->flow != edge->capacity)
-            DFSUtil(other_index, visited);
+    for(int u = 0; u < m_num_nodes; u++) {
+        auto edge = getEdge(u, index);
+        if(!visited[u] && edge != nullptr && edge->capacity - edge->flow > 0)
+            DFSUtil(u, visited);
     }
 }
