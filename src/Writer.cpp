@@ -12,18 +12,20 @@ void Writer::write(Network *network)
     auto graph = network->getGraph();
     std::cout << graph->getMaxFlow() << "\n";
 
-    graph->calculateIncreases();
+    graph->DFS();
 
-    auto increases = graph->getIncreases();
-    for(unsigned int i = 0; i < increases.size(); i++) {
-        auto connection = increases[i];
-        auto origin = connection->getOrigin();
-        auto destination = connection->getDestination();
+    // graph->calculateIncreases();
+
+    // auto increases = graph->getIncreases();
+    // for(unsigned int i = 0; i < increases.size(); i++) {
+    //     auto connection = increases[i];
+    //     auto origin = connection->getOrigin();
+    //     auto destination = connection->getDestination();
         
 
-        if(origin->getId() == -destination->getId()) // storage
-            LOG(origin->getId());
-        else // normal path
-            LOG(std::to_string(origin->getId()) + " " + std::to_string(destination->getId()));
-    }
+    //     if(origin->getId() == -destination->getId()) // storage
+    //         LOG(origin->getId());
+    //     else // normal path
+    //         LOG(std::to_string(origin->getId()) + " " + std::to_string(destination->getId()));
+    // }
 }

@@ -189,6 +189,43 @@ void Graph::calculateIncreases()
     delete [] visited;
 }
 
+void Graph::DFS()
+{
+    auto *adj = new std::vector<std::shared_ptr<DFSNode>>[m_num_vertices];
+
+    unsigned int connections_size = m_connections.size();
+    for (unsigned int i = 0; i < connections_size / 2; i++) {
+        auto connection = m_connections[i];
+
+        int u = getNodeIndex(connection->getOrigin());
+        int v = getNodeIndex(connection->getDestination());
+        bool full = connection->getFlow() == connection->getCapacity();
+
+        adj[u].push_back(std::make_shared<DFSNode>(v, full));
+        adj[v].push_back(std::make_shared<DFSNode>(u, full));
+    }
+
+    bool *visited = new bool[m_num_vertices];
+    for(int i = 0; i < m_num_vertices; i++)
+        visited[i] = false;
+    // visited[0] = true;
+    DFSUtil(1, adj, visited);
+
+    delete [] visited;
+    delete [] adj;
+}
+
+void Graph::DFSUtil(int v, std::vector<std::shared_ptr<DFSNode>> *adj, bool *visited)
+{
+    visited[v] = true;
+
+    LOG(v);
+
+    for(auto i = adj[v].begin(); i != adj[v].end(); ++i) 
+        if (!visited[(*i)->id]) 
+            DFSUtil((*i)->id, adj, visited); 
+}
+
 bool Graph::calculateIncreasesRecursive(std::shared_ptr<Node> node, bool *visited)
 {
     int destination_index = getNodeIndex(node);

@@ -8,6 +8,13 @@
 #include "Node.hpp"
 #include "Connection.hpp"
 
+struct DFSNode
+{
+    int id;
+    bool full;
+    DFSNode(int id, bool full) : id(id), full(full) { }
+};
+
 class Graph
 {
 private:
@@ -38,6 +45,9 @@ public:
     std::shared_ptr<Node> getNode(int id);
     int getNodeIndex(std::shared_ptr<Node> node);
     bool isStorage(int node_id);
+
+    void DFS();
+    void DFSUtil(int v, std::vector<std::shared_ptr<DFSNode>> *adj, bool *visited);
 
     void calculateIncreases();
     std::vector<std::shared_ptr<Connection>> getIncreases();
