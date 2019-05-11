@@ -1,14 +1,15 @@
 #include "Graph.hpp"
 
-Graph::Graph(int num_vertices) : m_num_vertices(num_vertices) {
+Graph::Graph(int num_vertices, int num_suppliers)
+    : m_num_vertices(num_vertices), m_num_suppliers(num_suppliers) {
     auto source = std::make_shared<Node>(0);
     addNode(source);
-    m_num_vertices++;
 }
 
 void Graph::addNode(std::shared_ptr<Node> node)
 {
     m_nodes.push_back(node);
+    m_num_vertices++;
 }
 
 void Graph::addConnection(std::shared_ptr<Node> origin, std::shared_ptr<Node> destination, int capacity)
@@ -24,7 +25,7 @@ void Graph::preflow(std::shared_ptr<Node> origin)
     for(unsigned int i = 0; i < m_connections.size(); i++) {
         auto connection = m_connections[i];
         if(connection->getOrigin() == origin) {
-            connection->addFlow(connection->getCapacity());
+            connection->setFlow(connection->getCapacity());
 
             connection->getDestination()->addExcessFlow(connection->getFlow());
 
@@ -116,9 +117,30 @@ int Graph::getMaxFlow()
         auto node = overFlowNode();
         if(!push(node))
             relabel(node);
+        
+        // LOG("\n");
+        // LOG("========NODES========");
+        // LOG("id | height | e_flow");
+        // for (int i = 0; i < m_num_vertices; i++) {
+        //     auto n = m_nodes[i];
+        //     LOG(std::to_string(n->getId()) + " | "
+        //     + std::to_string(n->getHeight()) + " | "
+        //     + std::to_string(n->getExcessFlow()));
+        // }
+        // LOG(" ");
+        // LOG("========EDGES========");
+        // LOG("origin | destination | capacity | flow");
+        // for (unsigned int i = 0; i < m_connections.size(); i++) {
+        //     auto c = m_connections[i];
+        //     LOG(std::to_string(c->getOrigin()->getId()) + " | "
+        //     + std::to_string(c->getDestination()->getId()) + " | "
+        //     + std::to_string(c->getCapacity()) + " | "
+        //     + std::to_string(c->getFlow()));
+        // }
+        // LOG("\n");
     }
 
-    return m_nodes.back()->getExcessFlow();
+    return getTail()->getExcessFlow();
 }
 
 std::shared_ptr<Node> Graph::getSource()
@@ -126,11 +148,66 @@ std::shared_ptr<Node> Graph::getSource()
     return m_nodes[0];
 }
 
+std::shared_ptr<Node> Graph::getTail()
+{
+    return m_nodes.back();
+}
+
 std::shared_ptr<Node> Graph::getNode(int id)
 {
-    for(int i = id; i < m_num_vertices; i++) {
+    for(int i = 0; i < m_num_vertices; i++) {
         if(m_nodes[i]->getId() == id)
-        return m_nodes[i];
+            return m_nodes[i];
     }
     return nullptr;
+}
+
+int Graph::getNodeIndex(std::shared_ptr<Node> node)
+{
+    int index = node->getId();
+
+    if(index < 0)
+        index = -index + 1;
+    
+    index += index - (m_num_suppliers + 2);
+
+    return index;
+}
+
+void Graph::calculateIncreases()
+{
+    bool *visited = new bool[m_num_vertices];
+    for(int i = 0; i < m_num_vertices; i++)
+        visited[i] = false;
+    calculateIncreasesRecursive(getTail(), visited);
+    delete [] visited;
+}
+
+bool Graph::calculateIncreasesRecursive(std::shared_ptr<Node> node, bool visited[])
+{
+    int origin_index = getNodeIndex(node);
+    visited[origin_index] = true;
+    LOG(origin_index);
+    for (unsigned int i = 0; i < m_connections.size(); i++) {
+        auto connection = m_connections[i];
+        auto destination = connection->getDestination();
+
+        int destination_index = getNodeIndex(destination);
+        LOG(destination_index);
+        if(visited[destination_index])
+            continue;
+
+        if(connection->getFlow() > 0) {
+            return true;
+        }
+
+        if(calculateIncreasesRecursive(destination, visited))
+            m_increases.push_back(connection); // inverted connection
+    }
+    return false;
+}
+
+std::vector<std::shared_ptr<Connection>> Graph::getIncreases()
+{
+    return m_increases;
 }

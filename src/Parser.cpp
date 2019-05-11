@@ -17,13 +17,16 @@ std::string Parser::read_three_num_line(int *a, int *b, int *c)
     return line;
 }
 
-int Parser::cycle_line(std::string line, Network *network, int type, int num_nodes)
+int Parser::cycle_line(std::string line, Network *network, int type, int num_nodes, int num_elements)
 {
     auto graph = network->getGraph();
+    
+    char *tmp = new char[line.length() + 1];
+    strcpy(tmp, line.c_str());
 
-    std::istringstream sstream(line);
     int n;
-    while(sstream >> n) {
+    for(int i = 0; i < num_elements; i++) {
+        sscanf(tmp, "%d %[^\n]", &n, tmp);
         if(type == TYPE_SUPPLIER) {
             auto supplier = std::make_shared<Node>(++num_nodes);
             graph->addNode(supplier);
@@ -36,6 +39,9 @@ int Parser::cycle_line(std::string line, Network *network, int type, int num_nod
             graph->addConnection(storage_start, storage_end, n);
         }
     }
+
+    delete [] tmp;
+    
     return num_nodes;
 }
 
@@ -49,24 +55,27 @@ Network Parser::factory() {
     int num_nodes = 1;
 
     line = read_line();
-    num_nodes = cycle_line(line, &network, TYPE_SUPPLIER, num_nodes);
+    num_nodes = cycle_line(line, &network, TYPE_SUPPLIER, num_nodes, num_suppliers);
 
     line = read_line();
-    num_nodes = cycle_line(line, &network, TYPE_STORAGE, num_nodes);
+    num_nodes = cycle_line(line, &network, TYPE_STORAGE, num_nodes, num_storages);
 
     auto graph = network.getGraph();
     
     auto tail = std::make_shared<Node>(1);
     graph->addNode(tail);
 
-    int i = 0;
     int origin_id, destination_id, capacity;
-    while(i < num_connections) {
+    for(int i = 0; i < num_connections; i++ ) {
         line = read_three_num_line(&origin_id, &destination_id, &capacity);
+
+        if(network.isStorage(origin_id))
+            origin_id *= -1; // storages are paths between 2 nodes with symmetrical ids
+
         auto origin = graph->getNode(origin_id);
         auto destination = graph->getNode(destination_id);
+
         graph->addConnection(origin, destination, capacity);
-        i++;
     }
     
     return network;

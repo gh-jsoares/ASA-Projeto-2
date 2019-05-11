@@ -2,9 +2,7 @@
 
 #include "Node.hpp"
 
-Node::Node(int id) : m_id(id), m_height(0) { }
-
-Node::Node(int id, int height): m_id(id), m_height(height) { }
+Node::Node(int id) : m_id(id), m_height(0), m_excess_flow(0) { }
 
 int Node::getId()
 {

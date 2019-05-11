@@ -22,4 +22,5 @@ public:
 
     void setCapacity(int capacity);
     void addFlow(int flow);
+    void setFlow(int flow);
 };

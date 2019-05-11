@@ -32,3 +32,8 @@ void Connection::addFlow(int flow)
 {
     m_flow += flow;
 }
+
+void Connection::setFlow(int flow)
+{
+    m_flow = flow;
+}

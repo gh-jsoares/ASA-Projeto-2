@@ -1,3 +1,7 @@
 #pragma once
 
-#define MIN(a,b) ((a) < (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
+#include <iostream>
+
+#define LOG(a) std::cout << (a) << "\n"

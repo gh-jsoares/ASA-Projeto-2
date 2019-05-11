@@ -18,4 +18,6 @@ public:
     int countStorages();
 
     std::shared_ptr<Graph> getGraph();
+    
+    bool isStorage(int node_id);
 };

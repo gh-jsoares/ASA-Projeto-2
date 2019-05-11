@@ -7,5 +7,6 @@
 class Writer
 {
 public:
+    Writer();
     void write(Network *network);
 };

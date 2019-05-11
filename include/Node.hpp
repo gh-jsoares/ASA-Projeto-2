@@ -9,12 +9,11 @@ private:
     int m_excess_flow;
 public:
     Node(int id);
-    Node(int id, int height);
 
     int getId();
     int getHeight();
     int getExcessFlow();
-    
+
     void setHeight(int height);
     void setExcessFlow(int excess_flow);
     void addExcessFlow(int excess_flow);
