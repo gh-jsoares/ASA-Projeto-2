@@ -96,7 +96,6 @@ public:
 class Writer
 {
 public:
-    Writer();
     void write(Network *network);
 };
 
@@ -295,8 +294,6 @@ int Network::getMaxFlow()
         if(!push(node))
             relabel(node);
     }
-
-    // debug();
 
     return tail->excess_flow;
 }
