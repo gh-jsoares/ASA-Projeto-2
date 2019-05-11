@@ -43,7 +43,6 @@ private:
     bool isStorage(std::shared_ptr<Node> node);
 
     std::shared_ptr<Node> getNode(int id);
-    std::shared_ptr<Node> createNode(int id);
 
     // relabel
     std::shared_ptr<Node> overFlowNode();
@@ -57,6 +56,7 @@ public:
     ~Set();
 
     void addEdge(int origin_id, int destination_id, int capacity);
+    void createNode(int id);
 
     bool isStorage(int id);
 

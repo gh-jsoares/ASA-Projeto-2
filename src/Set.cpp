@@ -7,6 +7,11 @@ Set::Set(int num_nodes, int f) : m_num_nodes(num_nodes), m_f(f)
 {
     m_adj = new std::vector<std::shared_ptr<Edge>>[num_nodes];
     m_nodes = new std::shared_ptr<Node>[num_nodes];
+    for (int i = 0; i < m_num_nodes; i++) {
+        int id = getNodeId(i);
+        m_nodes[i] = std::make_shared<Node>(id);
+    }
+    
 }
 
 Set::~Set() {
@@ -38,7 +43,7 @@ int Set::getNodeIndex(int id)
 
     if(isStorage(id)) {
         index += index - (m_f + 2);
-        if(index < 0)
+        if(id < 0)
             index++;
     }
 
@@ -50,9 +55,9 @@ int Set::getNodeId(int index)
     int id = index;
 
     if(isStorage(id)) {
-        id -= index + (m_f + 2);
+        id = (id + (m_f + 2)) / 2;
         if(index < 0)
-            index++;
+            index += 1;
     }
 
     return id;
@@ -71,28 +76,22 @@ bool Set::isStorage(int id)
 std::shared_ptr<Node> Set::getNode(int id)
 {
     int index = getNodeIndex(id);
-
-    if(m_nodes[index] == nullptr)
-        createNode(id);
-
     return m_nodes[index];
 }
 
-std::shared_ptr<Node> Set::createNode(int id)
+void Set::createNode(int id)
 {
     auto node = std::make_shared<Node>(id);
     int index = getNodeIndex(id);
 
     m_nodes[index] = node;
-
-    return node;
 }
 
 std::shared_ptr<Node> Set::overFlowNode()
 {
-    for(int i = 2; i < m_num_nodes - 1; i++) { // 0 and 1 will have excess flow values after the algorithm
-        auto node = m_nodes[i];
-        if(node->excess_flow > 0)
+    for(int i = 2; i < m_num_nodes; i++) { // 0 and 1 will have excess flow values after the algorithm
+        std::shared_ptr<Node> node = m_nodes[i];
+        if(node != NULL && node->excess_flow > 0)
             return node;
     }
 
@@ -201,7 +200,7 @@ int Set::getMaxFlow()
     for (int i = 0; i < m_num_nodes; i++) {
         for(auto it = m_adj[i].begin(); it != m_adj[i].end(); ++it) {
             auto edge = (*it);
-            int origin_id = i;
+            int origin_id = getNodeId(i);
             int destination_id = edge->node->id;
             int capacity = edge->capacity;
             int flow = edge->flow;
