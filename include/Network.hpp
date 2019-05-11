@@ -1,42 +1,21 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 
-#include "Supplier.hpp"
-#include "Storage.hpp"
-#include "Connection.hpp"
+#include "Graph.hpp"
 
 class Network
 {
 private:
-    int num_suppliers;
-    int num_storages;
-    int num_connections;
+    int m_num_suppliers;
+    int m_num_storages;
 
-    std::vector<std::shared_ptr<Supplier>> suppliers;
-    std::vector<std::shared_ptr<Storage>> storages;
-
-    std::vector<std::shared_ptr<Connection>> *connections;
-
+    std::shared_ptr<Graph> m_graph;
 public:
     Network(int num_suppliers, int num_storages);
-    ~Network();
 
     int countSuppliers();
     int countStorages();
-    int countConnections();
 
-    void addSupplier(int amount);
-    int nextSupplierId();
-    std::vector<std::shared_ptr<Supplier>> getSuppliers();
-
-    void addStorage(int amount);
-    int nextStorageId();
-    std::vector<std::shared_ptr<Storage>> getStorages();
-
-    void addConnection(int origin_id, int destiny_id, int capacity);
-    std::vector<std::shared_ptr<Connection>> *getConnections();
-
-    bool bfs(int source, int target);
+    std::shared_ptr<Graph> getGraph();
 };

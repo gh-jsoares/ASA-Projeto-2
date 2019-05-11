@@ -2,26 +2,37 @@
 
 #include "Node.hpp"
 
-Node::Node(int id, int amount): id(id), amount(amount), level(-1) { }
+Node::Node(int id) : m_id(id), m_height(0) { }
 
-Node::~Node() { }
+Node::Node(int id, int height): m_id(id), m_height(height) { }
 
 int Node::getId()
 {
-    return this->id;
+    return m_id;
 }
 
-int Node::getAmount()
+int Node::getHeight()
 {
-    return this->amount;
+    return m_height;
 }
 
-int Node::getLevel()
+int Node::getExcessFlow()
 {
-    return this->level;
+    return m_excess_flow;
 }
 
-void Node::setLevel(int new_level)
+void Node::setHeight(int height)
 {
-    this->level = new_level;
+    m_height = height;
 }
+
+void Node::setExcessFlow(int excess_flow)
+{
+    m_excess_flow = excess_flow;
+}
+
+void Node::addExcessFlow(int excess_flow)
+{
+    m_excess_flow += excess_flow;
+}
+

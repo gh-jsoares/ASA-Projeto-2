@@ -3,16 +3,19 @@
 class Node 
 {
 private:
-    int id;
-    int amount;
-    int level;
+    int m_id;
+
+    int m_height;
+    int m_excess_flow;
 public:
-    Node(int id, int amount);
-    ~Node();
+    Node(int id);
+    Node(int id, int height);
 
     int getId();
-    int getAmount();
-
-    int getLevel();
-    void setLevel(int new_level);
+    int getHeight();
+    int getExcessFlow();
+    
+    void setHeight(int height);
+    void setExcessFlow(int excess_flow);
+    void addExcessFlow(int excess_flow);
 };

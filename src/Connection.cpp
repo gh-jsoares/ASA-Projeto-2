@@ -1,28 +1,34 @@
 #include "Connection.hpp"
 
-Connection::Connection(int vertex_id, int capacity)
+Connection::Connection(int flow, int capacity, std::shared_ptr<Node> origin, std::shared_ptr<Node> destination)
+    : m_capacity(capacity), m_flow(flow), m_origin(origin), m_destination(destination) { }
+
+std::shared_ptr<Node> Connection::getOrigin()
 {
-    this->vertex_id = vertex_id;
-    this->capacity = capacity;
-    this->flow = 0;
+    return m_origin;
 }
 
-int Connection::getVertexId()
+std::shared_ptr<Node> Connection::getDestination()
 {
-    return this->vertex_id;
+    return m_destination;
 }
 
 int Connection::getCapacity()
 {
-    return this->capacity;
+    return m_capacity;
 }
 
-void Connection::setReverseConnection(std::shared_ptr<Connection> reverse)
+int Connection::getFlow()
 {
-    this->reverse = reverse;
+    return m_flow;
 }
 
-std::weak_ptr<Connection> Connection::getReverseConnection()
+void Connection::setCapacity(int capacity)
 {
-    return this->reverse;
+    m_capacity = capacity;
+}
+
+void Connection::addFlow(int flow)
+{
+    m_flow += flow;
 }

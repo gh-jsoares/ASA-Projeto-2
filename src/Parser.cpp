@@ -17,24 +17,26 @@ std::string Parser::read_three_num_line(int *a, int *b, int *c)
     return line;
 }
 
-void Parser::cycle_line(std::string line, Network *network, int type)
+int Parser::cycle_line(std::string line, Network *network, int type, int num_nodes)
 {
+    auto graph = network->getGraph();
+
     std::istringstream sstream(line);
     int n;
     while(sstream >> n) {
-        switch (type) {
-        case TYPE_SUPPLIER:
-            network->addSupplier(n);
-            break;
-
-        case TYPE_STORAGE:
-            network->addStorage(n);
-            break;
-
-        default:
-            break;
+        if(type == TYPE_SUPPLIER) {
+            auto supplier = std::make_shared<Node>(++num_nodes);
+            graph->addNode(supplier);
+            graph->addConnection(graph->getSource(), supplier, n);
+        } else {
+            auto storage_start = std::make_shared<Node>(++num_nodes);
+            auto storage_end = std::make_shared<Node>(-num_nodes);
+            graph->addNode(storage_start);
+            graph->addNode(storage_end);
+            graph->addConnection(storage_start, storage_end, n);
         }
     }
+    return num_nodes;
 }
 
 Network Parser::factory() {
@@ -44,17 +46,26 @@ Network Parser::factory() {
     line = read_three_num_line(&num_suppliers, &num_storages, &num_connections);
     Network network(num_suppliers, num_storages);
 
-    line = read_line();
-    cycle_line(line, &network, TYPE_SUPPLIER);
+    int num_nodes = 1;
 
     line = read_line();
-    cycle_line(line, &network, TYPE_STORAGE);
+    num_nodes = cycle_line(line, &network, TYPE_SUPPLIER, num_nodes);
+
+    line = read_line();
+    num_nodes = cycle_line(line, &network, TYPE_STORAGE, num_nodes);
+
+    auto graph = network.getGraph();
+    
+    auto tail = std::make_shared<Node>(1);
+    graph->addNode(tail);
 
     int i = 0;
-    int origin, destiny, capacity;
+    int origin_id, destination_id, capacity;
     while(i < num_connections) {
-        line = read_three_num_line(&origin, &destiny, &capacity);
-        network.addConnection(origin, destiny, capacity);
+        line = read_three_num_line(&origin_id, &destination_id, &capacity);
+        auto origin = graph->getNode(origin_id);
+        auto destination = graph->getNode(destination_id);
+        graph->addConnection(origin, destination, capacity);
         i++;
     }
     
